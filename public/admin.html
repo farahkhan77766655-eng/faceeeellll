@@ -1,783 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - User Data Manager</title>
+    <title>Admin Panel</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .card h2 {
-            color: #1e3c72;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #2a5298;
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #333;
-            font-weight: 600;
-            font-size: 0.95em;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.95em;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-            font-family: 'Courier New', monospace;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #2a5298;
-            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.95em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-danger {
-            background: #ff6b6b;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #ff5252;
-        }
-
-        .btn-success {
-            background: #51cf66;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #40c057;
-        }
-
-        .message {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            display: block;
-        }
-
-        .users-list {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
-        }
-
-        .users-list h2 {
-            color: #1e3c72;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #2a5298;
-            padding-bottom: 10px;
-        }
-
-        .user-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 4px solid #2a5298;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-id {
-            font-weight: 600;
-            color: #333;
-            font-family: 'Courier New', monospace;
-            font-size: 1.1em;
-        }
-
-        .user-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .user-actions button {
-            padding: 8px 12px;
-            font-size: 0.85em;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .tab-button {
-            padding: 10px 20px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: #666;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .tab-button.active {
-            color: #2a5298;
-            border-bottom-color: #2a5298;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .data-preview {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-            border: 1px solid #ddd;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .data-preview pre {
-            margin: 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            color: #333;
-        }
-
-        .json-editor {
-            background: #1e1e1e;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-
-        .json-editor textarea {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            border: 1px solid #333;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-        }
-
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        .login-container h1 {
-            color: #1e3c72;
-            margin-bottom: 30px;
-        }
-
-        .login-container input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1em;
-        }
-
-        .login-container button {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .section-title {
-            color: #1e3c72;
-            margin-top: 20px;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            font-weight: 600;
-        }
-
-        .array-item {
-            background: white;
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-        }
-
-        .array-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .array-item-header button {
-            padding: 6px 12px;
-            font-size: 0.85em;
-        }
-
-        .tooltip {
-            font-size: 0.85em;
-            color: #666;
-            margin-top: 5px;
-            font-style: italic;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { background: white; padding: 30px; text-align: center; border-radius: 12px 12px 0 0; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+        .header h1 { color: #1e3c72; margin: 0; }
+        .card { background: white; padding: 30px; margin: 0; border-radius: 0 0 12px 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+        .card + .card { margin-top: 20px; border-radius: 12px; }
+        .card h2 { color: #1e3c72; margin-bottom: 20px; border-bottom: 2px solid #2a5298; padding-bottom: 10px; }
+        .card h3 { color: #2a5298; margin-top: 20px; margin-bottom: 10px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; }
+        button { width: 100%; padding: 12px; background: #2a5298; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 15px; font-weight: 600; }
+        button:hover { background: #1e3c72; }
+        .message { padding: 12px; margin: 10px 0; border-radius: 6px; display: none; }
+        .message.show { display: block; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        #adminPanel { display: none; }
+        .logout { background: #ff6b6b !important; }
     </style>
 </head>
 <body>
-    <div id="loginForm" class="login-container">
-        <h1>🔐 Admin Panel</h1>
-        <input 
-            type="password" 
-            id="adminPassword" 
-            placeholder="Enter admin password"
-            onkeypress="if(event.key==='Enter') loginAdmin()"
-        >
-        <button class="btn-primary" onclick="loginAdmin()">Login</button>
-        <p style="color: #999; margin-top: 20px; font-size: 0.9em;">
-            Default password: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">admin123</code>
-        </p>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Admin Panel</h1>
+        </div>
 
-    <div id="adminPanel" class="hidden">
-        <div class="container">
-            <div class="header">
-                <h1>🔧 Admin Panel</h1>
-                <p>Manage user data and configure search results</p>
-                <button class="btn-secondary" onclick="logout()" style="margin-top: 15px;">Logout</button>
+        <div id="loginCard" class="card">
+            <h2>Login</h2>
+            <input type="password" id="password" placeholder="Password" onkeypress="if(event.key==='Enter') login()">
+            <button onclick="login()">Login</button>
+            <div id="loginMessage" class="message"></div>
+        </div>
+
+        <div id="adminPanel">
+            <div class="card">
+                <h2>Add User</h2>
+                <input type="text" id="facebookId" placeholder="Facebook ID">
+                <h3>📍 Location</h3>
+                <input type="text" id="city" placeholder="City">
+                <input type="text" id="country" placeholder="Country">
+                <input type="number" id="latitude" placeholder="Latitude" step="0.0001">
+                <input type="number" id="longitude" placeholder="Longitude" step="0.0001">
+                <input type="text" id="timestamp" placeholder="Timestamp">
+                <h3>📱 Device</h3>
+                <input type="text" id="deviceName" placeholder="Device Name">
+                <input type="text" id="osType" placeholder="OS Type">
+                <input type="text" id="osVersion" placeholder="OS Version">
+                <input type="text" id="imei" placeholder="IMEI">
+                <button onclick="save()">Save User</button>
+                <div id="saveMessage" class="message"></div>
             </div>
 
-            <div class="main-grid">
-                <div class="card">
-                    <h2>➕ Add/Update User</h2>
-                    <div id="addMessage" class="message"></div>
-
-                    <div class="form-group">
-                        <label>Facebook ID</label>
-                        <input type="text" id="inputFacebookId" placeholder="e.g., 123456789">
-                    </div>
-
-                    <div class="tabs">
-                        <button class="tab-button active" onclick="switchTab('simple')">Simple</button>
-                        <button class="tab-button" onclick="switchTab('json')">JSON</button>
-                    </div>
-
-                    <div id="simpleTab" class="tab-content active">
-                        <div class="section-title">📍 Locations</div>
-                        <div id="locationsContainer"></div>
-                        <button class="btn-secondary" onclick="addLocation()">+ Add Location</button>
-
-                        <div class="section-title">📱 Devices</div>
-                        <div id="devicesContainer"></div>
-                        <button class="btn-secondary" onclick="addDevice()">+ Add Device</button>
-                    </div>
-
-                    <div id="jsonTab" class="tab-content">
-                        <label>Edit as JSON:</label>
-                        <div class="json-editor">
-                            <textarea id="jsonInput" placeholder='{"locations": [], "devices": []}'></textarea>
-                        </div>
-                        <div class="tooltip">Paste JSON data in standard format</div>
-                    </div>
-
-                    <div class="button-group" style="margin-top: 20px;">
-                        <button class="btn-primary" onclick="saveUser()">Save User</button>
-                        <button class="btn-secondary" onclick="loadUserData()">Load User</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h2>⚙️ Admin Settings</h2>
-                    <div id="settingsMessage" class="message"></div>
-
-                    <div class="form-group">
-                        <label>Current Admin Password</label>
-                        <input type="password" id="currentPassword" placeholder="Enter current password">
-                    </div>
-
-                    <div class="form-group">
-                        <label>New Admin Password</label>
-                        <input type="password" id="newPassword" placeholder="Enter new password">
-                    </div>
-
-                    <button class="btn-primary" onclick="changePassword()">Change Password</button>
-
-                    <div class="section-title" style="margin-top: 30px;">Sample Data</div>
-                    <button class="btn-secondary" onclick="loadSampleUser('123456789')">Load User 123456789</button>
-                    <button class="btn-secondary" onclick="loadSampleUser('987654321')">Load User 987654321</button>
-
-                    <div class="section-title" style="margin-top: 30px;">API Endpoints</div>
-                    <div class="tooltip" style="background: #f5f5f5; padding: 10px; border-radius: 4px; margin-top: 10px;">
-                        <strong>Search:</strong> POST /api/search<br>
-                        <strong>Update:</strong> POST /api/admin/update-user<br>
-                        <strong>Delete:</strong> POST /api/admin/delete-user<br>
-                        <strong>Get All:</strong> POST /api/admin/get-all-users
-                    </div>
-                </div>
+            <div class="card">
+                <h2>Change Password</h2>
+                <input type="password" id="newPassword" placeholder="New Password">
+                <button onclick="changePwd()">Change Password</button>
+                <div id="pwdMessage" class="message"></div>
             </div>
 
-            <div class="users-list">
-                <h2>👥 All Users</h2>
-                <div id="usersListContainer">
-                    <p style="color: #999;">Loading users...</p>
-                </div>
+            <div class="card">
+                <button onclick="logout()" class="logout">Logout</button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3000';
-        let currentPassword = '';
+        let adminPassword = '';
 
-        function loginAdmin() {
-            const password = document.getElementById('adminPassword').value;
-            if (!password) {
-                alert('Please enter a password');
-                return;
+        function login() {
+            if (document.getElementById('password').value === 'admin123') {
+                adminPassword = 'admin123';
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                msg('loginMessage', '✅ Logged in!', 'success');
+            } else {
+                msg('loginMessage', '❌ Wrong password!', 'error');
             }
-
-            currentPassword = password;
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            initializeForm();
-            loadAllUsers();
         }
 
         function logout() {
-            currentPassword = '';
-            document.getElementById('adminPanel').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-            document.getElementById('adminPassword').value = '';
+            adminPassword = '';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'block';
+            document.getElementById('password').value = '';
         }
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tab + 'Tab').classList.add('active');
-            event.target.classList.add('active');
-        }
+        async function save() {
+            const id = document.getElementById('facebookId').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const device = document.getElementById('deviceName').value.trim();
+            const ts = document.getElementById('timestamp').value.trim();
 
-        function initializeForm() {
-            addLocation();
-            addDevice();
-        }
-
-        function addLocation() {
-            const container = document.getElementById('locationsContainer');
-            const id = 'loc_' + Date.now();
-            const html = `
-                <div class="array-item" id="${id}">
-                    <div class="array-item-header">
-                        <strong>Location</strong>
-                        <button class="btn-danger" onclick="document.getElementById('${id}').remove()">Remove</button>
-                    </div>
-                    <div class="form-group">
-                        <label>City</label>
-                        <input type="text" class="loc-city" placeholder="e.g., New York">
-                    </div>
-                    <div class="form-group">
-                        <label>Country</label>
-                        <input type="text" class="loc-country" placeholder="e.g., USA">
-                    </div>
-                    <div class="form-group">
-                        <label>Latitude</label>
-                        <input type="number" class="loc-latitude" step="0.0001" placeholder="e.g., 40.7128">
-                    </div>
-                    <div class="form-group">
-                        <label>Longitude</label>
-                        <input type="number" class="loc-longitude" step="0.0001" placeholder="e.g., -74.0060">
-                    </div>
-                    <div class="form-group">
-                        <label>Timestamp (YYYY-MM-DD HH:MM)</label>
-                        <input type="text" class="loc-timestamp" placeholder="e.g., 2024-03-01 14:30">
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-        }
-
-        function addDevice() {
-            const container = document.getElementById('devicesContainer');
-            const id = 'dev_' + Date.now();
-            const html = `
-                <div class="array-item" id="${id}">
-                    <div class="array-item-header">
-                        <strong>Device</strong>
-                        <button class="btn-danger" onclick="document.getElementById('${id}').remove()">Remove</button>
-                    </div>
-                    <div class="form-group">
-                        <label>Device Name</label>
-                        <input type="text" class="dev-name" placeholder="e.g., iPhone 14 Pro">
-                    </div>
-                    <div class="form-group">
-                        <label>OS Type</label>
-                        <input type="text" class="dev-ostype" placeholder="e.g., iOS, Android">
-                    </div>
-                    <div class="form-group">
-                        <label>OS Version</label>
-                        <input type="text" class="dev-version" placeholder="e.g., 17.2">
-                    </div>
-                    <div class="form-group">
-                        <label>IMEI Number</label>
-                        <input type="text" class="dev-imei" placeholder="e.g., 358240051111110">
-                    </div>
-                    <div class="form-group">
-                        <label>Last Active (YYYY-MM-DD HH:MM)</label>
-                        <input type="text" class="dev-lastactive" placeholder="e.g., 2024-03-01 14:30">
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-        }
-
-        function saveUser() {
-            const facebookId = document.getElementById('inputFacebookId').value.trim();
-            if (!facebookId) {
-                showMessage('addMessage', 'Facebook ID is required', 'error');
+            if (!id || !city || !device) {
+                msg('saveMessage', '❌ Fill required fields!', 'error');
                 return;
             }
 
-            let data;
-            if (document.getElementById('jsonTab').classList.contains('active')) {
-                try {
-                    data = JSON.parse(document.getElementById('jsonInput').value);
-                } catch (e) {
-                    showMessage('addMessage', 'Invalid JSON format', 'error');
-                    return;
-                }
-            } else {
-                data = collectFormData();
-            }
-
-            fetch(`${API_BASE}/api/admin/update-user`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    password: currentPassword,
-                    facebookId: facebookId,
-                    locations: data.locations,
-                    devices: data.devices
-                })
-            })
-            .then(r => r.json())
-            .then(result => {
-                if (result.success) {
-                    showMessage('addMessage', `User ${facebookId} saved successfully!`, 'success');
-                    loadAllUsers();
-                } else {
-                    showMessage('addMessage', result.error || 'Failed to save', 'error');
-                }
-            })
-            .catch(err => showMessage('addMessage', 'Network error: ' + err.message, 'error'));
-        }
-
-        function collectFormData() {
-            const locations = [];
-            document.querySelectorAll('#locationsContainer .array-item').forEach(item => {
-                locations.push({
-                    city: item.querySelector('.loc-city').value,
-                    country: item.querySelector('.loc-country').value,
-                    latitude: parseFloat(item.querySelector('.loc-latitude').value) || 0,
-                    longitude: parseFloat(item.querySelector('.loc-longitude').value) || 0,
-                    timestamp: item.querySelector('.loc-timestamp').value
+            try {
+                const res = await fetch('/api/admin/update-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password: adminPassword,
+                        facebookId: id,
+                        locations: [{
+                            city: city,
+                            country: document.getElementById('country').value || '',
+                            latitude: parseFloat(document.getElementById('latitude').value) || 0,
+                            longitude: parseFloat(document.getElementById('longitude').value) || 0,
+                            timestamp: ts
+                        }],
+                        devices: [{
+                            deviceName: device,
+                            osType: document.getElementById('osType').value || '',
+                            osVersion: document.getElementById('osVersion').value || '',
+                            imei: document.getElementById('imei').value || '',
+                            lastActive: ts
+                        }]
+                    })
                 });
-            });
 
-            const devices = [];
-            document.querySelectorAll('#devicesContainer .array-item').forEach(item => {
-                devices.push({
-                    deviceName: item.querySelector('.dev-name').value,
-                    osType: item.querySelector('.dev-ostype').value,
-                    osVersion: item.querySelector('.dev-version').value,
-                    imei: item.querySelector('.dev-imei').value,
-                    lastActive: item.querySelector('.dev-lastactive').value
-                });
-            });
-
-            return { locations, devices };
-        }
-
-        function loadUserData() {
-            const facebookId = document.getElementById('inputFacebookId').value.trim();
-            if (!facebookId) {
-                showMessage('addMessage', 'Enter a Facebook ID to load', 'error');
-                return;
-            }
-
-            fetch(`${API_BASE}/api/admin/get-user`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    password: currentPassword,
-                    facebookId: facebookId
-                })
-            })
-            .then(r => r.json())
-            .then(result => {
-                if (result.success) {
-                    populateFormWithData(result.data);
-                    showMessage('addMessage', 'User data loaded', 'success');
+                const data = await res.json();
+                if (data.success) {
+                    msg('saveMessage', '✅ User saved!', 'success');
+                    document.getElementById('facebookId').value = '';
+                    document.getElementById('city').value = '';
+                    document.getElementById('deviceName').value = '';
                 } else {
-                    showMessage('addMessage', result.error || 'User not found', 'error');
+                    msg('saveMessage', '❌ Error: ' + data.error, 'error');
                 }
-            })
-            .catch(err => showMessage('addMessage', 'Network error: ' + err.message, 'error'));
+            } catch (e) {
+                msg('saveMessage', '❌ Error: ' + e.message, 'error');
+            }
         }
 
-        function populateFormWithData(data) {
-            document.getElementById('locationsContainer').innerHTML = '';
-            data.locations.forEach(loc => {
-                addLocation();
-                const item = document.querySelector('#locationsContainer .array-item:last-child');
-                item.querySelector('.loc-city').value = loc.city;
-                item.querySelector('.loc-country').value = loc.country;
-                item.querySelector('.loc-latitude').value = loc.latitude;
-                item.querySelector('.loc-longitude').value = loc.longitude;
-                item.querySelector('.loc-timestamp').value = loc.timestamp;
-            });
-
-            document.getElementById('devicesContainer').innerHTML = '';
-            data.devices.forEach(dev => {
-                addDevice();
-                const item = document.querySelector('#devicesContainer .array-item:last-child');
-                item.querySelector('.dev-name').value = dev.deviceName;
-                item.querySelector('.dev-ostype').value = dev.osType;
-                item.querySelector('.dev-version').value = dev.osVersion;
-                item.querySelector('.dev-imei').value = dev.imei || '';
-                item.querySelector('.dev-lastactive').value = dev.lastActive;
-            });
-        }
-
-        function loadSampleUser(userId) {
-            document.getElementById('inputFacebookId').value = userId;
-            loadUserData();
-        }
-
-        function changePassword() {
-            const current = document.getElementById('currentPassword').value;
+        async function changePwd() {
             const newPwd = document.getElementById('newPassword').value;
-
-            if (!current || !newPwd) {
-                showMessage('settingsMessage', 'Both password fields are required', 'error');
+            if (!newPwd) {
+                msg('pwdMessage', '❌ Enter password!', 'error');
                 return;
             }
 
-            fetch(`${API_BASE}/api/admin/change-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    currentPassword: current,
-                    newPassword: newPwd
-                })
-            })
-            .then(r => r.json())
-            .then(result => {
-                if (result.success) {
-                    showMessage('settingsMessage', 'Password changed successfully!', 'success');
-                    currentPassword = newPwd;
-                    document.getElementById('currentPassword').value = '';
+            try {
+                const res = await fetch('/api/admin/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        currentPassword: adminPassword,
+                        newPassword: newPwd
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    adminPassword = newPwd;
+                    msg('pwdMessage', '✅ Changed!', 'success');
                     document.getElementById('newPassword').value = '';
                 } else {
-                    showMessage('settingsMessage', result.error || 'Failed to change password', 'error');
+                    msg('pwdMessage', '❌ Error: ' + data.error, 'error');
                 }
-            })
-            .catch(err => showMessage('settingsMessage', 'Network error: ' + err.message, 'error'));
+            } catch (e) {
+                msg('pwdMessage', '❌ Error: ' + e.message, 'error');
+            }
         }
 
-        function loadAllUsers() {
-            fetch(`${API_BASE}/api/admin/get-all-users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: currentPassword })
-            })
-            .then(r => r.json())
-            .then(result => {
-                if (result.success) {
-                    const container = document.getElementById('usersListContainer');
-                    if (result.users.length === 0) {
-                        container.innerHTML = '<p style="color: #999;">No users found</p>';
-                    } else {
-                        container.innerHTML = result.users.map(userId => `
-                            <div class="user-item">
-                                <span class="user-id">${userId}</span>
-                                <div class="user-actions">
-                                    <button class="btn-secondary" onclick="loadUserInForm('${userId}')">Edit</button>
-                                    <button class="btn-danger" onclick="deleteUser('${userId}')">Delete</button>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-            });
-        }
-
-        function loadUserInForm(userId) {
-            document.getElementById('inputFacebookId').value = userId;
-            loadUserData();
-            window.scrollTo(0, 0);
-        }
-
-        function deleteUser(userId) {
-            if (!confirm(`Are you sure you want to delete user ${userId}?`)) return;
-
-            fetch(`${API_BASE}/api/admin/delete-user`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    password: currentPassword,
-                    facebookId: userId
-                })
-            })
-            .then(r => r.json())
-            .then(result => {
-                if (result.success) {
-                    loadAllUsers();
-                } else {
-                    alert(result.error || 'Failed to delete user');
-                }
-            });
-        }
-
-        function showMessage(elementId, message, type) {
-            const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.className = 'message ' + type;
-            setTimeout(() => {
-                el.className = 'message';
-            }, 4000);
+        function msg(id, text, type) {
+            const el = document.getElementById(id);
+            el.textContent = text;
+            el.className = 'message show ' + type;
+            setTimeout(() => { el.className = 'message'; }, 3000);
         }
     </script>
 </body>
