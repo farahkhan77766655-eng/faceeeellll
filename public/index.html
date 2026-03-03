@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>User Data Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .mobile-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .status-bar {
+            padding-top: max(0px, env(safe-area-inset-top));
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            height: calc(24px + max(0px, env(safe-area-inset-top)));
+        }
+
+        .time {
+            font-weight: 600;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0;
+            background: #f5f5f5;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 2px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.95;
+        }
+
+        .search-section {
+            background: white;
+            margin: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            background: #f9f9f9;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            min-width: 70px;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-button:active {
+            transform: scale(0.98);
+        }
+
+        .search-button:disabled {
+            opacity: 0.6;
+        }
+
+        .samples-section {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .samples-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .samples-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .sample-button {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: all 0.3s;
+        }
+
+        .sample-button:active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .sample-button:disabled {
+            opacity: 0.6;
+        }
+
+        .loading-container {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .loading-container.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .results-section {
+            display: none;
+            padding: 0 12px 20px;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .card-content {
+            padding: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .card-content::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .card-content::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        .data-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .data-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .data-item-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .data-item-detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .value {
+            color: #333;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 11px;
+            background: #f5f5f5;
+        }
+
+        .error-message {
+            background: #ffe0e0;
+            color: #c00;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 0 12px 12px;
+            display: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .safe-bottom {
+            padding-bottom: max(0px, env(safe-area-inset-bottom));
+        }
+
+        .no-data {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        @media (max-height: 600px) {
+            .header {
+                padding: 15px 20px 10px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <div class="status-bar">
+            <div class="time" id="time"></div>
+            <div style="font-weight: 600;">📱</div>
+            <div style="width: 20px; text-align: right;">5G</div>
+        </div>
+
+        <div class="content">
+            <div class="header">
+                <h1>📱 User Data Tracker</h1>
+                <p>Search & View User Information</p>
+            </div>
+
+            <div class="search-section">
+                <div class="section-title">Enter Facebook ID</div>
+                
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="facebookId" 
+                        placeholder="Enter Facebook ID" 
+                        autocomplete="off"
+                        inputmode="numeric"
+                    >
+                    <button class="search-button" onclick="searchData()" id="searchBtn">Search</button>
+                </div>
+
+                <div class="samples-section" id="samplesSection" style="display:none;">
+                    <div class="samples-label">Sample IDs:</div>
+                    <div class="samples-container" id="samplesContainer"></div>
+                </div>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="loading-container" id="loadingContainer">
+                <div class="spinner"></div>
+                <div class="loading-text">Searching...</div>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="results-title">Results for ID: <span id="resultId"></span></div>
+                <div class="card">
+                    <div class="card-header">📍 Locations</div>
+                    <div class="card-content" id="locationsContent"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">📱 Devices & IMEI</div>
+                    <div class="card-content" id="devicesContent"></div>
+                </div>
+            </div>
+
+            <div class="footer safe-bottom">
+                User Data Management System
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+        }
+
+        function searchData() {
+            const facebookId = document.getElementById('facebookId').value.trim();
+            const errorMsg = document.getElementById('errorMessage');
+            const resultsSection = document.getElementById('resultsSection');
+            const loadingContainer = document.getElementById('loadingContainer');
+            const searchBtn = document.getElementById('searchBtn');
+
+            errorMsg.classList.remove('active');
+            resultsSection.classList.remove('active');
+
+            if (!facebookId) {
+                errorMsg.textContent = 'Please enter a Facebook ID';
+                errorMsg.classList.add('active');
+                return;
+            }
+
+            loadingContainer.classList.add('active');
+            searchBtn.disabled = true;
+
+            fetch(`${API_BASE}/api/search`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ facebookId })
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    displayResults(facebookId, result.data);
+                } else {
+                    errorMsg.textContent = result.error || 'Search failed';
+                    errorMsg.classList.add('active');
+                }
+                loadingContainer.classList.remove('active');
+                searchBtn.disabled = false;
+            })
+            .catch(err => {
+                errorMsg.textContent = 'Connection error. Is the backend server running? (http://localhost:3000)';
+                errorMsg.classList.add('active');
+                loadingContainer.classList.remove('active');
+                searchBtn.disabled = false;
+            });
+        }
+
+        function displayResults(facebookId, data) {
+            document.getElementById('resultId').textContent = facebookId;
+
+            // Locations
+            if (data.locations && data.locations.length > 0) {
+                const locationsHtml = data.locations.map(loc => `
+                    <div class="data-item">
+                        <div class="data-item-title">${loc.city}, ${loc.country}</div>
+                        <div class="data-item-detail">
+                            <span class="label">Latitude:</span>
+                            <span class="value">${loc.latitude}</span>
+                        </div>
+                        <div class="data-item-detail">
+                            <span class="label">Longitude:</span>
+                            <span class="value">${loc.longitude}</span>
+                        </div>
+                        <div class="data-item-detail">
+                            <span class="label">Detected:</span>
+                            <span class="value">${loc.timestamp}</span>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('locationsContent').innerHTML = locationsHtml;
+            } else {
+                document.getElementById('locationsContent').innerHTML = '<div class="no-data">No location data</div>';
+            }
+
+            // Devices
+            if (data.devices && data.devices.length > 0) {
+                const devicesHtml = data.devices.map(dev => `
+                    <div class="data-item">
+                        <div class="data-item-title">${dev.deviceName}</div>
+                        <div class="data-item-detail">
+                            <span class="label">OS Type:</span>
+                            <span class="value">${dev.osType}</span>
+                        </div>
+                        <div class="data-item-detail">
+                            <span class="label">OS Ver:</span>
+                            <span class="value">${dev.osVersion}</span>
+                        </div>
+                        <div class="data-item-detail">
+                            <span class="label">IMEI:</span>
+                            <span class="value">${dev.imei || 'N/A'}</span>
+                        </div>
+                        <div class="data-item-detail">
+                            <span class="label">Last Active:</span>
+                            <span class="value">${dev.lastActive}</span>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('devicesContent').innerHTML = devicesHtml;
+            } else {
+                document.getElementById('devicesContent').innerHTML = '<div class="no-data">No device data</div>';
+            }
+
+            document.getElementById('resultsSection').classList.add('active');
+            document.querySelector('.content').scrollTop = 0;
+        }
+
+        // Update time on load and every minute
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Allow Enter key to search
+        document.getElementById('facebookId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchData();
+            }
+        });
+    </script>
+</body>
+</html>
